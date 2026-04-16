@@ -18,6 +18,14 @@ const MAPPING = {
   "paperplane.fill": "send",
   "chevron.left.forwardslash.chevron.right": "code",
   "chevron.right": "chevron-right",
+  "shippingbox.fill": "inventory-2",
+  "barcode.viewfinder": "qr-code-scanner",
+  "truck.box.fill": "local-shipping",
+  "chart.bar.fill": "insert-chart",
+  "plus.circle.fill": "add-circle",
+  "magnifyingglass": "search",
+  "map.fill": "map",
+  "camera.fill": "photo-camera",
 } as IconMapping;
 
 /**

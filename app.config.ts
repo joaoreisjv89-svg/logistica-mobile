@@ -28,11 +28,11 @@ const schemeFromBundleId = `manus${timestamp}`;
 
 const env = {
   // App branding - update these values directly (do not use env vars)
-  appName: "Logística Mobile",
+  appName: "Rota Estoque",
   appSlug: "logistica-mobile",
   // S3 URL of the app logo - set this to the URL returned by generate_image when creating custom logo
   // Leave empty to use the default icon from assets/images/icon.png
-  logoUrl: "",
+  logoUrl: "https://d2xsxph8kpxj0f.cloudfront.net/310519663565586518/KzjqR3SHwQ7ecuP3CGpAh5/logistica-mobile-icon-C5YXg4D8zifvW3ihwXNz8m.png",
   scheme: schemeFromBundleId,
   iosBundleId: bundleId,
   androidPackage: bundleId,
@@ -56,7 +56,7 @@ const config: ExpoConfig = {
   },
   android: {
     adaptiveIcon: {
-      backgroundColor: "#E6F4FE",
+      backgroundColor: "#04163D",
       foregroundImage: "./assets/images/android-icon-foreground.png",
       backgroundImage: "./assets/images/android-icon-background.png",
       monochromeImage: "./assets/images/android-icon-monochrome.png",
@@ -64,7 +64,7 @@ const config: ExpoConfig = {
     edgeToEdgeEnabled: true,
     predictiveBackGestureEnabled: false,
     package: env.androidPackage,
-    permissions: ["POST_NOTIFICATIONS"],
+    permissions: ["POST_NOTIFICATIONS", "CAMERA", "ACCESS_COARSE_LOCATION", "ACCESS_FINE_LOCATION"],
     intentFilters: [
       {
         action: "VIEW",
@@ -86,6 +86,21 @@ const config: ExpoConfig = {
   },
   plugins: [
     "expo-router",
+    "expo-sqlite",
+    [
+      "expo-camera",
+      {
+        cameraPermission: "Permita que o aplicativo acesse a câmera para escanear códigos e registrar comprovantes.",
+        microphonePermission: "Permita que o aplicativo acesse o microfone ao capturar vídeos operacionais.",
+        recordAudioAndroid: true,
+      },
+    ],
+    [
+      "expo-location",
+      {
+        locationWhenInUsePermission: "Permita que o aplicativo acesse sua localização para registrar entregas e exibir rotas.",
+      },
+    ],
     [
       "expo-audio",
       {
@@ -105,9 +120,9 @@ const config: ExpoConfig = {
         image: "./assets/images/splash-icon.png",
         imageWidth: 200,
         resizeMode: "contain",
-        backgroundColor: "#ffffff",
+        backgroundColor: "#04163D",
         dark: {
-          backgroundColor: "#000000",
+          backgroundColor: "#04163D",
         },
       },
     ],

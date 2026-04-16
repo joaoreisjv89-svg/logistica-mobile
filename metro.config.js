@@ -1,11 +1,20 @@
 const { getDefaultConfig } = require("expo/metro-config");
 const { withNativeWind } = require("nativewind/metro");
 
+/** @type {import('expo/metro-config').MetroConfig} */
 const config = getDefaultConfig(__dirname);
+
+config.resolver.assetExts.push("wasm");
+config.server = config.server ?? {};
+config.server.enhanceMiddleware = (middleware) => {
+  return (req, res, next) => {
+    res.setHeader("Cross-Origin-Embedder-Policy", "credentialless");
+    res.setHeader("Cross-Origin-Opener-Policy", "same-origin");
+    middleware(req, res, next);
+  };
+};
 
 module.exports = withNativeWind(config, {
   input: "./global.css",
-  // Force write CSS to file system instead of virtual modules
-  // This fixes iOS styling issues in development mode
   forceWriteFileSystem: true,
 });
