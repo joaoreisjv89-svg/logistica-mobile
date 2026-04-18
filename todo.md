@@ -1,5 +1,18 @@
 # Project TODO
 
+## Refatoração para Dashboard Único
+- [x] Refatorar navegação de abas para dashboard único com botões grandes
+- [x] Implementar modal de scanner (entrada e saída de produtos)
+- [x] Implementar modal de criação de entrega
+- [x] Implementar modal de lista de inventário com busca
+- [x] Traduzir interface completa para português
+- [ ] Testar fluxos de scanner com dados reais
+- [ ] Testar fluxos de entrega com dados reais
+- [ ] Testar fluxos de inventário com dados reais
+- [ ] Otimizar performance para Android mid-range
+- [ ] Gerar APK final
+
+## Funcionalidades Originais (Concluídas)
 - [x] Modelar entidades locais de produtos, entregas, eventos operacionais e backups
 - [x] Configurar persistência offline local e camada de repositórios
 - [x] Implementar navegação principal com cinco abas: Painel, Inventário, Scanner, Entregas e Relatórios
