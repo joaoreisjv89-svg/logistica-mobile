@@ -28,11 +28,11 @@ const schemeFromBundleId = `manus${timestamp}`;
 
 const env = {
   // App branding - update these values directly (do not use env vars)
-  appName: "Rota Estoque",
+  appName: "LogiStock PRO",
   appSlug: "logistica-mobile",
   // S3 URL of the app logo - set this to the URL returned by generate_image when creating custom logo
   // Leave empty to use the default icon from assets/images/icon.png
-  logoUrl: "https://d2xsxph8kpxj0f.cloudfront.net/310519663565586518/KzjqR3SHwQ7ecuP3CGpAh5/logistica-mobile-icon-C5YXg4D8zifvW3ihwXNz8m.png",
+  logoUrl: "",
   scheme: schemeFromBundleId,
   iosBundleId: bundleId,
   androidPackage: bundleId,
@@ -50,13 +50,10 @@ const config: ExpoConfig = {
   ios: {
     supportsTablet: true,
     bundleIdentifier: env.iosBundleId,
-    "infoPlist": {
-        "ITSAppUsesNonExemptEncryption": false
-      }
   },
   android: {
     adaptiveIcon: {
-      backgroundColor: "#04163D",
+      backgroundColor: "#0A1428",
       foregroundImage: "./assets/images/android-icon-foreground.png",
       backgroundImage: "./assets/images/android-icon-background.png",
       monochromeImage: "./assets/images/android-icon-monochrome.png",
@@ -64,7 +61,7 @@ const config: ExpoConfig = {
     edgeToEdgeEnabled: true,
     predictiveBackGestureEnabled: false,
     package: env.androidPackage,
-    permissions: ["POST_NOTIFICATIONS", "CAMERA", "ACCESS_COARSE_LOCATION", "ACCESS_FINE_LOCATION"],
+    permissions: ["POST_NOTIFICATIONS", "CAMERA", "ACCESS_FINE_LOCATION", "ACCESS_COARSE_LOCATION"],
     intentFilters: [
       {
         action: "VIEW",
@@ -86,21 +83,6 @@ const config: ExpoConfig = {
   },
   plugins: [
     "expo-router",
-    "expo-sqlite",
-    [
-      "expo-camera",
-      {
-        cameraPermission: "Permita que o aplicativo acesse a câmera para escanear códigos e registrar comprovantes.",
-        microphonePermission: "Permita que o aplicativo acesse o microfone ao capturar vídeos operacionais.",
-        recordAudioAndroid: true,
-      },
-    ],
-    [
-      "expo-location",
-      {
-        locationWhenInUsePermission: "Permita que o aplicativo acesse sua localização para registrar entregas e exibir rotas.",
-      },
-    ],
     [
       "expo-audio",
       {
@@ -120,9 +102,9 @@ const config: ExpoConfig = {
         image: "./assets/images/splash-icon.png",
         imageWidth: 200,
         resizeMode: "contain",
-        backgroundColor: "#04163D",
+        backgroundColor: "#0A1428",
         dark: {
-          backgroundColor: "#04163D",
+          backgroundColor: "#0A1428",
         },
       },
     ],
@@ -131,7 +113,6 @@ const config: ExpoConfig = {
       {
         android: {
           buildArchs: ["armeabi-v7a", "arm64-v8a"],
-          minSdkVersion: 24,
         },
       },
     ],
