@@ -13,7 +13,7 @@
 - [x] Testar fluxos de entrega com dados reais
 - [x] Testar fluxos de inventário com dados reais
 - [x] Otimizar performance para Android mid-range
-- [ ] Gerar APK final
+- [x] Gerar APK final
 
 ## Funcionalidades Originais (Concluídas)
 - [x] Modelar entidades locais de produtos, entregas, eventos operacionais e backups
