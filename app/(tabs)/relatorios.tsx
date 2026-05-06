@@ -1,21 +1,46 @@
-import { ScrollView, Text, View, TouchableOpacity, FlatList, Alert } from "react-native";
+import { ScrollView, Text, View, Pressable, StyleSheet, Alert } from "react-native";
 import { useState } from "react";
 import { ScreenContainer } from "@/components/screen-container";
-import { useLogistics } from "@/lib/logistics/provider";
 import { useColors } from "@/hooks/use-colors";
+import { useLogistics } from "@/lib/logistics/provider";
+import * as Haptics from "expo-haptics";
+
+const styles = StyleSheet.create({
+  button: {
+    minHeight: 50,
+    borderRadius: 12,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 12,
+  },
+  card: {
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 12,
+    borderWidth: 1,
+  },
+  metricRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 12,
+    paddingBottom: 12,
+    borderBottomWidth: 1,
+  },
+});
 
 export default function RelatoriosScreen() {
   const colors = useColors();
-  const { state, exportWorkbook, createManualBackup, shareFile } = useLogistics();
+  const { state, exportWorkbook, createManualBackup } = useLogistics();
   const [exporting, setExporting] = useState(false);
-  const [backingUp, setBackingUp] = useState(false);
+  const [backing, setBacking] = useState(false);
 
   const handleExportWorkbook = async () => {
     setExporting(true);
     try {
       const fileUri = await exportWorkbook();
-      await shareFile(fileUri, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-      Alert.alert("Sucesso", "Relatório exportado com sucesso");
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      Alert.alert("Sucesso", `Relatório exportado: ${fileUri}`);
     } catch (error) {
       Alert.alert("Erro", "Falha ao exportar relatório");
     } finally {
@@ -24,134 +49,148 @@ export default function RelatoriosScreen() {
   };
 
   const handleCreateBackup = async () => {
-    setBackingUp(true);
+    setBacking(true);
     try {
       const fileUri = await createManualBackup();
-      await shareFile(fileUri, "application/json");
-      Alert.alert("Sucesso", "Backup criado com sucesso");
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      Alert.alert("Sucesso", `Backup criado: ${fileUri}`);
     } catch (error) {
       Alert.alert("Erro", "Falha ao criar backup");
     } finally {
-      setBackingUp(false);
+      setBacking(false);
     }
   };
 
-  const metrics = state.dashboard.metrics;
-  const recentMovements = state.movements.slice(0, 5);
+  const totalProducts = state.products.length;
+  const totalStock = state.products.reduce((sum, p) => sum + p.quantity, 0);
+  const lowStockCount = state.products.filter((p) => p.quantity < 5).length;
+  const pendingDeliveries = state.deliveries.filter((d) => d.status === "pending").length;
+  const deliveredCount = state.deliveries.filter((d) => d.status === "delivered").length;
+  const totalMovements = state.movements.length;
+  const inMovements = state.movements.filter((m) => m.type === "in").length;
+  const outMovements = state.movements.filter((m) => m.type === "out").length;
 
   return (
-    <ScreenContainer className="bg-background flex-1">
-      <ScrollView>
-        {/* Header */}
-        <View className="px-4 py-3 bg-primary">
-          <Text className="text-white text-2xl font-bold">Relatórios</Text>
-          <Text className="text-blue-100 text-sm">Métricas e exportação de dados</Text>
+    <ScreenContainer className="px-4 pb-6">
+      <ScrollView showsVerticalScrollIndicator={false}>
+        <View className="pt-4">
+          <Text className="text-3xl font-bold text-foreground">Relatórios</Text>
+          <Text className="mt-2 text-sm text-muted">Visualize e exporte dados</Text>
         </View>
 
-        {/* KPIs */}
-        <View className="px-4 py-4">
-          <Text className="text-foreground font-bold text-lg mb-3">Métricas do Dia</Text>
-          <View className="grid grid-cols-2 gap-3">
-            <View className="bg-surface border border-border rounded-lg p-4">
-              <Text className="text-muted text-xs">Entregas Hoje</Text>
-              <Text className="text-primary text-3xl font-bold">{metrics.deliveriesToday}</Text>
-            </View>
-            <View className="bg-surface border border-border rounded-lg p-4">
-              <Text className="text-muted text-xs">Produtos Escaneados</Text>
-              <Text className="text-success text-3xl font-bold">{metrics.productsScannedToday}</Text>
-            </View>
-            <View className="bg-surface border border-border rounded-lg p-4">
-              <Text className="text-muted text-xs">Pendentes</Text>
-              <Text className="text-warning text-3xl font-bold">{metrics.pendingDeliveries}</Text>
-            </View>
-            <View className="bg-surface border border-border rounded-lg p-4">
-              <Text className="text-muted text-xs">Concluídas</Text>
-              <Text className="text-success text-3xl font-bold">{metrics.completedDeliveries}</Text>
-            </View>
-            <View className="bg-surface border border-border rounded-lg p-4">
-              <Text className="text-muted text-xs">Total em Estoque</Text>
-              <Text className="text-primary text-3xl font-bold">{metrics.totalProductsInStock}</Text>
-            </View>
-            <View className="bg-surface border border-border rounded-lg p-4">
-              <Text className="text-muted text-xs">Baixo Estoque</Text>
-              <Text className="text-error text-3xl font-bold">{metrics.lowStockProducts}</Text>
-            </View>
+        {/* Inventory Metrics */}
+        <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+          <Text className="text-lg font-semibold text-foreground mb-4">📦 Inventário</Text>
+
+          <View style={[styles.metricRow, { borderBottomColor: colors.border }]}>
+            <Text className="text-sm text-muted">Total de Produtos</Text>
+            <Text className="text-lg font-bold text-foreground">{totalProducts}</Text>
+          </View>
+
+          <View style={[styles.metricRow, { borderBottomColor: colors.border }]}>
+            <Text className="text-sm text-muted">Quantidade Total em Estoque</Text>
+            <Text className="text-lg font-bold text-foreground">{totalStock}</Text>
+          </View>
+
+          <View style={[styles.metricRow, { borderBottomColor: colors.border }]}>
+            <Text className="text-sm text-muted">Produtos com Baixo Estoque</Text>
+            <Text className="text-lg font-bold text-error">{lowStockCount}</Text>
           </View>
         </View>
 
-        {/* Ações */}
-        <View className="px-4 py-4 gap-3">
-          <TouchableOpacity
+        {/* Delivery Metrics */}
+        <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+          <Text className="text-lg font-semibold text-foreground mb-4">🚚 Entregas</Text>
+
+          <View style={[styles.metricRow, { borderBottomColor: colors.border }]}>
+            <Text className="text-sm text-muted">Entregas Pendentes</Text>
+            <Text className="text-lg font-bold text-warning">{pendingDeliveries}</Text>
+          </View>
+
+          <View style={[styles.metricRow, { borderBottomColor: colors.border }]}>
+            <Text className="text-sm text-muted">Entregas Concluídas</Text>
+            <Text className="text-lg font-bold text-success">{deliveredCount}</Text>
+          </View>
+
+          <View style={[styles.metricRow, { borderBottomColor: colors.border }]}>
+            <Text className="text-sm text-muted">Total de Entregas</Text>
+            <Text className="text-lg font-bold text-foreground">{state.deliveries.length}</Text>
+          </View>
+        </View>
+
+        {/* Movement Metrics */}
+        <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+          <Text className="text-lg font-semibold text-foreground mb-4">📊 Movimentações</Text>
+
+          <View style={[styles.metricRow, { borderBottomColor: colors.border }]}>
+            <Text className="text-sm text-muted">Total de Movimentações</Text>
+            <Text className="text-lg font-bold text-foreground">{totalMovements}</Text>
+          </View>
+
+          <View style={[styles.metricRow, { borderBottomColor: colors.border }]}>
+            <Text className="text-sm text-muted">Entradas</Text>
+            <Text className="text-lg font-bold text-success">{inMovements}</Text>
+          </View>
+
+          <View style={[styles.metricRow]}>
+            <Text className="text-sm text-muted">Saídas</Text>
+            <Text className="text-lg font-bold text-error">{outMovements}</Text>
+          </View>
+        </View>
+
+        {/* Export and Backup Actions */}
+        <View className="mt-6 mb-20">
+          <Text className="text-lg font-semibold text-foreground mb-4">⚙️ Ações</Text>
+
+          <Pressable
             onPress={handleExportWorkbook}
             disabled={exporting}
-            className={`py-4 rounded-lg ${exporting ? "bg-border" : "bg-primary"}`}
+            style={[
+              styles.button,
+              {
+                backgroundColor: colors.primary,
+                opacity: exporting ? 0.6 : 1,
+              },
+            ]}
           >
-            <Text className="text-white text-center font-bold">
-              {exporting ? "Exportando..." : "📊 Exportar Relatório Excel"}
+            <Text style={{ color: colors.background, fontWeight: "600", fontSize: 16 }}>
+              {exporting ? "Exportando..." : "📥 Exportar Relatório (XLSX)"}
             </Text>
-          </TouchableOpacity>
+          </Pressable>
 
-          <TouchableOpacity
+          <Pressable
             onPress={handleCreateBackup}
-            disabled={backingUp}
-            className={`py-4 rounded-lg ${backingUp ? "bg-border" : "bg-warning"}`}
+            disabled={backing}
+            style={[
+              styles.button,
+              {
+                backgroundColor: colors.primary,
+                opacity: backing ? 0.6 : 1,
+              },
+            ]}
           >
-            <Text className="text-white text-center font-bold">
-              {backingUp ? "Criando backup..." : "💾 Criar Backup"}
+            <Text style={{ color: colors.background, fontWeight: "600", fontSize: 16 }}>
+              {backing ? "Criando backup..." : "💾 Criar Backup"}
             </Text>
-          </TouchableOpacity>
-        </View>
+          </Pressable>
 
-        {/* Movimentos Recentes */}
-        <View className="px-4 pb-4">
-          <Text className="text-foreground font-bold text-lg mb-3">Movimentos Recentes</Text>
-          <FlatList
-            data={recentMovements}
-            keyExtractor={(item) => item.id}
-            scrollEnabled={false}
-            renderItem={({ item }) => (
-              <View className="bg-surface border border-border rounded-lg p-3 mb-2">
-                <View className="flex-row justify-between items-start">
-                  <View className="flex-1">
-                    <Text className="text-foreground font-semibold">{item.productName}</Text>
-                    <Text className="text-muted text-xs">Código: {item.productCode}</Text>
-                  </View>
-                  <View
-                    className={`px-2 py-1 rounded ${item.type === "in" ? "bg-success" : "bg-error"}`}
-                  >
-                    <Text className="text-white text-xs font-semibold">
-                      {item.type === "in" ? "+ " : "- "}{item.quantity}
-                    </Text>
-                  </View>
-                </View>
-                <Text className="text-muted text-xs mt-1">{new Date(item.createdAt).toLocaleString("pt-BR")}</Text>
-              </View>
-            )}
-          />
-        </View>
-
-        {/* Informações */}
-        <View className="px-4 pb-8">
-          <View className="bg-surface border border-border rounded-lg p-4">
-            <Text className="text-foreground font-bold mb-2">Informações do Sistema</Text>
-            <View className="gap-2">
-              <View className="flex-row justify-between">
-                <Text className="text-muted">Total de Produtos:</Text>
-                <Text className="text-foreground font-semibold">{state.products.length}</Text>
-              </View>
-              <View className="flex-row justify-between">
-                <Text className="text-muted">Total de Entregas:</Text>
-                <Text className="text-foreground font-semibold">{state.deliveries.length}</Text>
-              </View>
-              <View className="flex-row justify-between">
-                <Text className="text-muted">Movimentos Registrados:</Text>
-                <Text className="text-foreground font-semibold">{state.movements.length}</Text>
-              </View>
-              <View className="flex-row justify-between">
-                <Text className="text-muted">Backups Criados:</Text>
-                <Text className="text-foreground font-semibold">{state.backups.length}</Text>
-              </View>
-            </View>
+          <View
+            style={[
+              styles.card,
+              {
+                backgroundColor: colors.surface,
+                borderColor: colors.border,
+                borderStyle: "dashed",
+              },
+            ]}
+          >
+            <Text className="text-sm font-semibold text-foreground mb-2">💡 Dicas</Text>
+            <Text className="text-xs text-muted leading-relaxed">
+              • Use "Exportar Relatório" para gerar um arquivo XLSX com todos os dados{"\n"}
+              • Use "Criar Backup" para salvar uma cópia de segurança do banco de dados{"\n"}
+              • Os arquivos são salvos no armazenamento local do dispositivo{"\n"}
+              • Faça backups regularmente para não perder dados importantes
+            </Text>
           </View>
         </View>
       </ScrollView>

@@ -1,8 +1,8 @@
 import { Tabs } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { Platform } from "react-native";
 import { HapticTab } from "@/components/haptic-tab";
 import { IconSymbol } from "@/components/ui/icon-symbol";
-import { Platform } from "react-native";
 import { useColors } from "@/hooks/use-colors";
 
 export default function TabLayout() {
@@ -26,39 +26,34 @@ export default function TabLayout() {
           borderTopColor: colors.border,
           borderTopWidth: 1,
         },
-        tabBarLabelStyle: {
-          fontSize: 11,
-          fontWeight: "600",
-          marginTop: 2,
-        },
       }}
     >
       <Tabs.Screen
-        name="index"
+        name="estoque"
         options={{
-          title: "ESTOQUE",
-          tabBarIcon: ({ color }) => <IconSymbol size={24} name="cube.box" color={color} />,
+          title: "Estoque",
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="cube.fill" color={color} />,
         }}
       />
       <Tabs.Screen
-        name="deliveries"
+        name="entregas"
         options={{
-          title: "ENTREGAS",
-          tabBarIcon: ({ color }) => <IconSymbol size={24} name="truck.box" color={color} />,
+          title: "Entregas",
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
         }}
       />
       <Tabs.Screen
         name="scanner"
         options={{
-          title: "SCANNER",
-          tabBarIcon: ({ color }) => <IconSymbol size={24} name="qrcode.viewfinder" color={color} />,
+          title: "Scanner",
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="chevron.left.forwardslash.chevron.right" color={color} />,
         }}
       />
       <Tabs.Screen
-        name="reports"
+        name="relatorios"
         options={{
-          title: "RELATÓRIOS",
-          tabBarIcon: ({ color }) => <IconSymbol size={24} name="chart.bar" color={color} />,
+          title: "Relatórios",
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="chevron.right" color={color} />,
         }}
       />
     </Tabs>
